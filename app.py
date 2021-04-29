@@ -7,9 +7,12 @@ import datetime
 from bson.objectid import ObjectId
 import os
 import subprocess
+from flask_pymongo import PyMongo
 
 # instantiate the app
 app = Flask(__name__)
+app.config["MONGO_URI"] = 'mongodb://pa1363:fGZjN5Ae@class-mongodb.cims.nyu.edu:27107/pa1363'
+mongo = PyMongo(app)
 
 # load credentials and configuration options from .env file
 # if you do not yet have a file named .env, make one based on the template in env.example
@@ -26,6 +29,8 @@ connection = pymongo.MongoClient(config['MONGO_HOST'], 27017,
                                 username=config['MONGO_USER'],
                                 password=config['MONGO_PASSWORD'],
                                 authSource=config['MONGO_DBNAME'])
+
+
 db = connection[config['MONGO_DBNAME']] # store a reference to the database
 
 # set up the routes
@@ -44,8 +49,12 @@ def read():
     Route for GET requests to the read page.
     Displays some information for the user with links to other pages.
     """
-    docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
+    docs = db.profs.distinct("prof_name") 
     return render_template('read.html', docs=docs) # render the read template
+
+@app.route('/file/<filename>')
+def file(filename):
+    return mongo.send_file(filename)
 
 
 @app.route('/create')
@@ -63,20 +72,68 @@ def create_post():
     Route for POST requests to the create page.
     Accepts the form submission data for a new document and saves the document to the database.
     """
-    name = request.form['fname']
-    message = request.form['fmessage']
-
-
+    
+    prof_name = request.form["prof_name"]
+    course_name = request.form["course_name"]
+    course_rating = request.form["course_rating"]
+    text_review = request.form["text_review"]
+    prof_rating = request.form["prof_rating"]
+    
     # create a new document with the data the user entered
     doc = {
-        "name": name,
-        "message": message, 
-        "created_at": datetime.datetime.utcnow()
+        "prof_name": prof_name,
+        "course_name": course_name,
+        "course_rating":course_rating,
+        "text_review":text_review,
+        "prof_rating":prof_rating,
+        "created_at": datetime.datetime.utcnow(),
     }
-    db.exampleapp.insert_one(doc) # insert a new document
+    db.profs.insert_one(doc) # insert a new document
 
     return redirect(url_for('read')) # tell the browser to make a request for the /read route
 
+
+@app.route('/view_prof/<prof_name>')
+def view_prof(prof_name):
+    """
+    Route for VIEW 
+    Displays review information about the Professor that has been clicked.
+    """
+    docs = db.profs.find({"prof_name":prof_name}).sort("created_at",-1)
+    avg_prof_ratings_docs = db.profs.find({"prof_name":prof_name},{"_id":-1, "prof_rating":1})
+    prof_rating_list = []
+    for i in avg_prof_ratings_docs: 
+        prof_rating_list.append(int(i["prof_rating"]))
+    avg_prof_rating = sum(prof_rating_list)/len(prof_rating_list)
+    avg_prof_rating = round(avg_prof_rating,2)
+
+    avg_class_ratings_docs = db.profs.find({"prof_name":prof_name},{"_id":-1, "course_rating":1})
+    class_rating_list = []
+    for i in avg_class_ratings_docs: 
+        class_rating_list.append(int(i["course_rating"]))
+    avg_course_rating = sum(class_rating_list)/len(class_rating_list)
+    avg_course_rating = round(avg_course_rating,2)
+
+    if avg_prof_rating<=2.5: 
+        color_1 = "red"
+    
+    elif avg_prof_rating<=3.75:
+        color_1 = "orange"
+
+    else:
+        color_1 = "green"
+
+    if avg_course_rating<=2.5: 
+        color_2 = "green"
+    
+    elif avg_course_rating<=3.75:
+        color_2 = "orange"
+
+    else:
+        color_2 = "red"
+
+        
+    return render_template('view.html', prof_name = prof_name, docs = docs, avg_prof_rating = avg_prof_rating, avg_course_rating = avg_course_rating, color_prof = color_1, color_class = color_2) # render the read template
 
 @app.route('/edit/<mongoid>')
 def edit(mongoid):
@@ -84,7 +141,7 @@ def edit(mongoid):
     Route for GET requests to the edit page.
     Displays a form users can fill out to edit an existing record.
     """
-    doc = db.exampleapp.find_one({"_id": ObjectId(mongoid)})
+    doc = db.profs.find_one({"_id": ObjectId(mongoid)})
     return render_template('edit.html', mongoid=mongoid, doc=doc) # render the edit template
 
 
@@ -94,17 +151,23 @@ def edit_post(mongoid):
     Route for POST requests to the edit page.
     Accepts the form submission data for the specified document and updates the document in the database.
     """
-    name = request.form['fname']
-    message = request.form['fmessage']
+    prof_name = request.form["prof_name"]
+    course_name = request.form["course_name"]
+    course_rating = request.form["course_rating"]
+    text_review = request.form["text_review"]
+    prof_rating = request.form["prof_rating"]
 
     doc = {
-        # "_id": ObjectId(mongoid), 
-        "name": name, 
-        "message": message, 
-        "created_at": datetime.datetime.utcnow()
+        # "_id": ObjectId(mongoid),
+        "prof_name": prof_name,
+        "course_name": course_name,
+        "course_rating":course_rating,
+        "text_review":text_review,
+        "prof_rating":prof_rating,
+        "created_at": datetime.datetime.utcnow(),
     }
 
-    db.exampleapp.update_one(
+    db.profs.update_one(
         {"_id": ObjectId(mongoid)}, # match criteria
         { "$set": doc }
     )
@@ -118,7 +181,7 @@ def delete(mongoid):
     Route for GET requests to the delete page.
     Deletes the specified record from the database, and then redirects the browser to the read page.
     """
-    db.exampleapp.delete_one({"_id": ObjectId(mongoid)})
+    db.profs.delete_one({"_id": ObjectId(mongoid)})
     return redirect(url_for('read')) # tell the web browser to make a request for the /read route.
 
 @app.route('/webhook', methods=['POST'])

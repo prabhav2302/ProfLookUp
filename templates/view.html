@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<h2 style="font-family: Optima; font-size: xx-large;">{{prof_name}}</h2>
+<p style="font-family: Optima; font-size: large; margin-bottom:0;">Average Professor Rating: </p><p style="color: {{color_prof}}; font-family: Optima; font-size: x-large; margin : 0; padding-top:0;">{{avg_prof_rating}}</p>
+<p style="font-family: Optima; font-size: large; margin-bottom:0;">Average Course Difficulty Rating: </p><p style="color: {{color_class}}; font-family: Optima; font-size: x-large; margin : 0; padding-top:0;">{{avg_course_rating}}</p>
+
+    {% for doc in docs %}
+    <div>
+        <hr class="solid">
+        <p style="font-family: Optima;">
+            <b>Course Taught:</b> {{doc.course_name}}</br></br>
+            <b>Course Difficulty Rating:</b> {{doc.course_rating}}/5</br></br>
+            <b>Review:</b> {{doc.text_review}}</br></br>
+            <b>Professor Rating:</b> {{doc.prof_rating}}/5</br></br>
+            <b>Review Date:</b> {{doc.created_at.strftime("%d %B %Y")}}
+            </br>
+        </p>
+        </br>
+        <a href="{{ url_for('edit',mongoid=doc._id)}}">Edit Review</a> | <a href="{{ url_for('delete',mongoid=doc._id)}}">Delete Review</a>
+        </br>
+        <p>
+        </p>
+            
+    </div>
+    {%endfor%}
+</p>
+{% endblock %}

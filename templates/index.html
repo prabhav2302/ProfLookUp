@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
 
 {% block container %}
-<h2>Welcome!</h2>
-<p>Welcome to the Flask app. This is the home page. Here are a few links to example pages you might find interesting.
-    <ul>
-        <li><a href="{{ url_for('read')}}">a page that displays information pulled from a MongoDB database collection</a></li>
-        <li><a href="{{ url_for('create')}}">a page with a form you can submit to create a new record in a MongoDB collection</a></li>
-    </ul>
+<h2 style="font-family: Optima;">Hi Students!</h2>
+<p style="font-family: Optima">
+    Looking for an Easy A?</br></br>
+    Tired of classes whose exams have nothing to do with the material taught in class?</br></br>
+    Searching for interactive and engaging Professors?</br></br>
+
+    
+    <b>Welcome to ProfLookUp.</b></br></br>
+    
+    Your one stop destination to answer all your queries and speak your mind on Professors. If you want to read reviews about Professors,
+    go ahead and click the read reviews button. Each Professor review contains the course the student took, the course difficulty score, the professor score, 
+    and of course the review of the Professor itself. If you would like to post a review go ahead and click the Submit Review Button. 
+
 </p>
+<a href="{{ url_for('read')}}"><button class="button button2">Read Reviews</button></a>
+<a href="{{ url_for('create')}}"><button class="button button1">Submit Review</button></a>
+
 {% endblock %}

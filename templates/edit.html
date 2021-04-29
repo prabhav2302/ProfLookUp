@@ -2,14 +2,14 @@
 <h2>Update</h2>
 <p>Edit a record in the MongoDB database collection.</p>
 <form method="POST" action="{{ url_for('edit_post', mongoid=mongoid) }}">
+  <p>Professor Name: <input type="text"  name="prof_name" value= {{doc.prof_name}} ><br /></p>
+  <p>Course Taken: <input type="text"  name="course_name" value= {{doc.course_name}}><br /></p>
+  <p>Course Difficulty Rating (between 1 and 5):<input type="number"  name="course_rating" value= {{doc.course_rating}} min="1" max="5"></p>
   <p>
-    Your name:
-    <input type="text" id="fname" name="fname" value="{{doc.name}}" /><br />
+    Review:
+    <textarea id="text_review" name="text_review" rows="4" cols="50">{{doc.text_review}}</textarea>
   </p>
-  <p>
-    Message:
-    <textarea id="fmessage" name="fmessage">{{doc.message}}</textarea>
-  </p>
+  <p>Overall Professor Rating (between 1 and 5):<input type="number" name="prof_rating" value = {{doc.prof_rating}} min="1" max="5"></p>
   <p>
     <a href="{{ url_for('read')}}">Cancel</a>
     <input type="submit" name="post-btn" value="Save" />

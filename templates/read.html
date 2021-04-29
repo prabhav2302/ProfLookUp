@@ -1,22 +1,13 @@
 {% extends 'base.html' %}
 
 {% block container %}
-<h2>Read</h2>
-<p>This page shows information pulled from a MongoDB database collection.
+<h2 style="font-family: Optima;">Read</h2>
+<p style="font-family: Optima;"> Here are all the Professors we have reviews for. Click the button to see the reviews for each Professor.
         
     {% for doc in docs %}
     <div>
         <hr class="solid">
-        <p class="post">
-            Posted by {{doc.name}} at {{ doc.created_at.strftime("%H:%M on %d %B %Y") }}
-            </br>
-            <a href="{{ url_for('edit',mongoid=doc._id)}}">Edit</a> | <a href="{{ url_for('delete',mongoid=doc._id)}}">Delete</a>
-            </br>
-        </p>
-        <p>
-            {{ doc.message }}
-        </p>
-            
+        <a href="{{ url_for('view_prof',prof_name=doc)}}"><button class="button button2">Professor {{doc}}</button></a>    
     </div>
     {%endfor%}
 </p>
