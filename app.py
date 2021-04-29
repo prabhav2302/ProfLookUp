@@ -7,12 +7,10 @@ import datetime
 from bson.objectid import ObjectId
 import os
 import subprocess
-from flask_pymongo import PyMongo
 
 # instantiate the app
 app = Flask(__name__)
 app.config["MONGO_URI"] = 'mongodb://pa1363:fGZjN5Ae@class-mongodb.cims.nyu.edu:27107/pa1363'
-mongo = PyMongo(app)
 
 # load credentials and configuration options from .env file
 # if you do not yet have a file named .env, make one based on the template in env.example
